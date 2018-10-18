@@ -72,15 +72,15 @@ def displayFrames(inputBuffer):
 filename = 'clip.mp4'
 
 # shared queue  
-extractionQueue = queue.Queue()
-readFrames = threading.Thread(extractFrames, (filename, extractionQueue))
+extractionQueue = queue.Queue(10)
+readFrames = threading.Thread(target=extractFrames, args=(filename, extractionQueue))
 
 # extract the frames
 #extractFrames(filename,extractionQueue)
 
 # display the frames
-displayFrames(extractionQueue)
-displayFrame = threading.Thread(displayFrames, (extractionQueue))
+#displayFrames(extractionQueue)
+displayFrame = threading.Thread(target=displayFrames, args=(extractionQueue))
 
 readFrames.start()
 displayFrame.start()
