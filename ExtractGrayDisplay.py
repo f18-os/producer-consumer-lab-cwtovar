@@ -11,14 +11,14 @@ filename = 'clip.mp4'
 
 # shared queue  
 extractionQueue = queue.Queue()
-readFrames = Thread(extractFrames, (fileName, extractionQueue))
+readFrames = threading.Thread(target=extractFrames, args=(fileName, extractionQueue))
 
 # extract the frames
 #extractFrames(filename,extractionQueue)
 
 # display the frames
 displayFrames(extractionQueue)
-displayFrame = Thread(displayFrames, (extractionQueue))
+displayFrame = threading.Thread(target=displayFrames, args=(extractionQueue))
 
 readFrames.start()
 displayFrame.start()
