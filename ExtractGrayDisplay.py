@@ -5,6 +5,7 @@ import cv2
 import numpy as np
 import base64
 import queue
+import time
 
 
 
@@ -35,7 +36,7 @@ class extractFrames(threading.Thread):
             # add the frame to the buffer
             self.outputBuffer.put(jpgAsText)
             while self.outputBuffer.full():
-                time.sleep(.000002)
+                time.sleep(0.0000020)
         
             success,image = vidcap.read()
             print('Reading frame {} {}'.format(count, success))
@@ -43,7 +44,46 @@ class extractFrames(threading.Thread):
 
         print("Frame extraction complete")
 
+class convertToGray(threading.Thread):
+    def __init__(self, inputBuffer, outputBuffer):
+        self.inputBuffer = inputBuffer
+        self.outputBuffer = outputBuffer
 
+    def run(self):
+        count = 0
+
+        # get the next frame file name
+        while not self.inputBuffer.empty():
+            frameAsText = self.inputBuffer.get()
+
+            # decode the frame 
+            jpgRawImage = base64.b64decode(frameAsText)
+
+            # convert the raw frame to a numpy array
+            jpgImage = np.asarray(bytearray(jpgRawImage), dtype=np.uint8)
+            
+            # load the next file
+            inputFrame = cv2.imdecode(jpgImage, cv2.IMREAD_UNCHANGED)
+
+            while inputFrame is not None:
+            # convert the image to grayscale
+                grayscaleFrame = cv2.cvtColor(inputFrame, cv2.COLOR_BGR2GRAY)
+                print("Converting frame {}".format(count))
+                # generate output file name
+
+                success, jpgImage = cv2.imencode('.jpg', grayscaleFrame)
+
+                #encode the frame as base 64 to make debugging easier
+                jpgAsText = base64.b64encode(jpgImage)
+                self.outputBuffer.put(jpgAsText)
+                while self.outputBuffer.full():
+                    time.sleep(0.0000024)
+
+            count += 1
+
+            # generate input file name for the next frame)
+
+            
 class displayFrames(threading.Thread):
     def __init__(self, inputBuffer):
         self.inputBuffer = inputBuffer
@@ -95,4 +135,5 @@ readFrames = extractFrames(filename, extractionQueue)
 displayFrame = displayFrames(extractionQueue)
 
 readFrames.start()
+
 displayFrame.start()
