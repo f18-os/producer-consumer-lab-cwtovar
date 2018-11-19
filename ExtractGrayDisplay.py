@@ -5,6 +5,7 @@ import cv2
 import numpy as np
 import base64
 import queue
+import time
 
 
 
@@ -27,6 +28,8 @@ def extractFrames(fileName, outputBuffer):
         jpgAsText = base64.b64encode(jpgImage)
 
         # add the frame to the buffer
+        if outputBuffer.full():
+            time.sleep(.27)
         outputBuffer.put(jpgAsText)
        
         success,image = vidcap.read()
