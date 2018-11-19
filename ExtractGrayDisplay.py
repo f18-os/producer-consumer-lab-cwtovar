@@ -34,6 +34,8 @@ class extractFrames(threading.Thread):
 
             # add the frame to the buffer
             self.outputBuffer.put(jpgAsText)
+            while self.outputBuffer.full():
+                time.sleep(.000002)
         
             success,image = vidcap.read()
             print('Reading frame {} {}'.format(count, success))
@@ -46,7 +48,7 @@ class displayFrames(threading.Thread):
     def __init__(self, inputBuffer):
         self.inputBuffer = inputBuffer
 
-    def run(self)
+    def run(self):
         # initialize frame count
         count = 0
 
