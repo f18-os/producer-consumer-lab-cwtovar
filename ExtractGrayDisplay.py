@@ -7,23 +7,6 @@ import base64
 import queue
 
 
-filename = 'clip.mp4'
-
-# shared queue  
-extractionQueue = queue.Queue()
-readFrames = threading.Thread(target=extractFrames, args=(fileName, extractionQueue))
-
-# extract the frames
-#extractFrames(filename,extractionQueue)
-
-# display the frames
-displayFrames(extractionQueue)
-displayFrame = threading.Thread(target=displayFrames, args=(extractionQueue))
-
-readFrames.start()
-displayFrame.start()
-
-
 
 def extractFrames(fileName, outputBuffer):
     # Initialize frame count 
@@ -85,15 +68,19 @@ def displayFrames(inputBuffer):
     # cleanup the windows
     cv2.destroyAllWindows()
 
-# filename of clip to load
+
 filename = 'clip.mp4'
 
 # shared queue  
 extractionQueue = queue.Queue()
+readFrames = threading.Thread(extractFrames, (filename, extractionQueue))
 
 # extract the frames
-extractFrames(filename,extractionQueue)
+#extractFrames(filename,extractionQueue)
 
 # display the frames
 displayFrames(extractionQueue)
+displayFrame = threading.Thread(displayFrames, (extractionQueue))
 
+readFrames.start()
+displayFrame.start()
